@@ -8,28 +8,60 @@ enum DivisionError {
     NotDivisible,
 }
 
-// TODO: Calculate `a` divided by `b` if `a` is evenly divisible by `b`.
+// Calculate `a` divided by `b` if `a` is evenly divisible by `b`.
 // Otherwise, return a suitable error.
 fn divide(a: i64, b: i64) -> Result<i64, DivisionError> {
-    todo!();
+    // Check for division by zero
+    if b == 0 {
+        return Err(DivisionError::DivideByZero);
+    }
+    
+    // Check for integer overflow (i64::MIN / -1)
+    if a == i64::MIN && b == -1 {
+        return Err(DivisionError::IntegerOverflow);
+    }
+    
+    // Check if evenly divisible
+    if a % b != 0 {
+        return Err(DivisionError::NotDivisible);
+    }
+    
+    // Perform the division
+    Ok(a / b)
 }
 
-// TODO: Add the correct return type and complete the function body.
+// Returns a Result containing a list of successful division results
 // Desired output: `Ok([1, 11, 1426, 3])`
-fn result_with_list() {
+fn result_with_list() -> Result<[i64; 4], DivisionError> {
     let numbers = [27, 297, 38502, 81];
     let division_results = numbers.into_iter().map(|n| divide(n, 27));
+    
+    // Collect into a Result<Vec<i64>, DivisionError>
+    // If any division fails, the whole operation fails
+    let results: Result<Vec<i64>, DivisionError> = division_results.collect();
+    
+    // Convert Vec to array
+    results.map(|vec| {
+        let arr: [i64; 4] = vec.try_into().unwrap();
+        arr
+    })
 }
 
-// TODO: Add the correct return type and complete the function body.
+// Returns a list of Results from each division
 // Desired output: `[Ok(1), Ok(11), Ok(1426), Ok(3)]`
-fn list_of_results() {
+fn list_of_results() -> [Result<i64, DivisionError>; 4] {
     let numbers = [27, 297, 38502, 81];
     let division_results = numbers.into_iter().map(|n| divide(n, 27));
+    
+    // Collect into an array of Results
+    let results: Vec<Result<i64, DivisionError>> = division_results.collect();
+    results.try_into().unwrap()
 }
 
 fn main() {
     // You can optionally experiment here.
+    println!("result_with_list: {:?}", result_with_list());
+    println!("list_of_results: {:?}", list_of_results());
 }
 
 #[cfg(test)]
